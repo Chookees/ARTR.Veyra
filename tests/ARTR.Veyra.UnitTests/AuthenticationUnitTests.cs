@@ -282,6 +282,12 @@ public sealed class VeyraJwtBearerPostConfigureOptionsTests
             Assert.True(options.TokenValidationParameters.ValidateIssuerSigningKey);
             Assert.Null(options.Authority);
             Assert.True(string.IsNullOrEmpty(options.MetadataAddress));
+            Assert.Null(options.Configuration);
+            Assert.Null(options.ConfigurationManager);
+            Assert.False(options.IncludeErrorDetails);
+            Assert.NotNull(options.Events.OnMessageReceived);
+            Assert.NotNull(options.Events.OnAuthenticationFailed);
+            Assert.NotNull(options.Events.OnChallenge);
         }
         finally
         {

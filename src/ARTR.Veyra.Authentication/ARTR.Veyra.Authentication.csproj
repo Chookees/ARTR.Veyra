@@ -14,4 +14,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
   </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="ARTR.Veyra.UnitTests" />
+  </ItemGroup>
 </Project>

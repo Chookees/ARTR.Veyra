@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 
@@ -42,6 +41,7 @@ public sealed class VeyraJwtBearerPostConfigureOptions : IPostConfigureOptions<J
         }
 
         options.MapInboundClaims = false;
+        options.IncludeErrorDetails = false;
         options.RequireHttpsMetadata = jwtOptions.RequireHttpsMetadata;
         options.Audience = jwtOptions.Audience;
         options.TokenValidationParameters = new TokenValidationParameters
@@ -87,14 +87,14 @@ public sealed class VeyraJwtBearerPostConfigureOptions : IPostConfigureOptions<J
                 $"JWT signing key secret '{jwtOptions.SigningKeySecretName}' could not be resolved.");
         }
 
-        // Local symmetric validation only — never consult OIDC metadata.
-        var configuration = new OpenIdConnectConfiguration();
+        // Local symmetric validation only — never consult OIDC metadata or ConfigurationManager.
         options.Authority = null;
         options.MetadataAddress = null!;
+        options.Configuration = null;
+        options.ConfigurationManager = null!;
         options.RequireHttpsMetadata = false;
         options.RefreshOnIssuerKeyNotFound = false;
-        options.Configuration = configuration;
-        options.ConfigurationManager = new StaticConfigurationManager<OpenIdConnectConfiguration>(configuration);
+        options.IncludeErrorDetails = false;
         options.TokenValidationParameters.IssuerSigningKey =
             new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey));
         options.TokenValidationParameters.ValidateIssuerSigningKey = true;
@@ -105,9 +105,38 @@ public sealed class VeyraJwtBearerPostConfigureOptions : IPostConfigureOptions<J
 
     private static void AttachAuthenticationEvents(JwtBearerOptions options)
     {
+        var priorMessageReceived = options.Events?.OnMessageReceived;
         var priorFailed = options.Events?.OnAuthenticationFailed;
         var priorChallenge = options.Events?.OnChallenge;
         options.Events ??= new JwtBearerEvents();
+
+        options.Events.OnMessageReceived = async context =>
+        {
+            if (priorMessageReceived is not null)
+            {
+                await priorMessageReceived(context).ConfigureAwait(false);
+                if (context.Result is not null)
+                {
+                    return;
+                }
+            }
+
+            var token = context.Token;
+            if (string.IsNullOrEmpty(token))
+            {
+                var authorization = context.Request.Headers.Authorization.ToString();
+                if (authorization.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                {
+                    token = authorization["Bearer ".Length..].Trim();
+                }
+            }
+
+            if (!string.IsNullOrEmpty(token) && !IsWellFormedCompactJwt(token))
+            {
+                // Fail before TokenHandlers parse — avoids JwtBearerHandler outer catch + rethrow (500).
+                context.Fail("Malformed bearer token.");
+            }
+        };
 
         options.Events.OnAuthenticationFailed = async context =>
         {
@@ -120,8 +149,8 @@ public sealed class VeyraJwtBearerPostConfigureOptions : IPostConfigureOptions<J
                 }
             }
 
-            // Prevent JwtBearerHandler from rethrowing validation/parse exceptions as 500.
-            context.NoResult();
+            // Replace exception-bearing failures with a clean Fail so the handler never rethrows.
+            context.Fail("Token validation failed.");
         };
 
         options.Events.OnChallenge = async context =>
@@ -138,6 +167,13 @@ public sealed class VeyraJwtBearerPostConfigureOptions : IPostConfigureOptions<J
             context.HandleResponse();
             await WriteUnauthorizedProblemAsync(context.HttpContext).ConfigureAwait(false);
         };
+    }
+
+    internal static bool IsWellFormedCompactJwt(string token)
+    {
+        // Compact JWS/JWE: header.payload.signature (or 5 parts for JWE). Reject garbage early.
+        var parts = token.Split('.', StringSplitOptions.None);
+        return parts.Length is 3 or 5 && parts.All(static part => part.Length > 0);
     }
 
     internal static async Task WriteUnauthorizedProblemAsync(HttpContext httpContext)

@@ -128,6 +128,19 @@ public sealed class JwtBearerChallengeBranchTests
         await options.Events.OnAuthenticationFailed(failedContext);
 
         Assert.True(priorCalled);
+        Assert.NotNull(failedContext.Result);
+        Assert.False(failedContext.Result!.Succeeded);
+    }
+
+    [Theory]
+    [InlineData("a.b.c", true)]
+    [InlineData("a.b.c.d.e", true)]
+    [InlineData("not-a-valid-jwt", false)]
+    [InlineData("a.b", false)]
+    [InlineData(".b.c", false)]
+    public void IsWellFormedCompactJwt_MatchesExpected(string token, bool expected)
+    {
+        Assert.Equal(expected, VeyraJwtBearerPostConfigureOptions.IsWellFormedCompactJwt(token));
     }
 
     [Fact]

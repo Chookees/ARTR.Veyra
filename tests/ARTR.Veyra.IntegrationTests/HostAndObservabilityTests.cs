@@ -87,54 +87,58 @@ public sealed class HostAndObservabilityTests
 public sealed class JwtAuthenticationIntegrationTests
 {
     [Fact]
-    public async Task AdminAcceptsValidJwtSignedWithEnvironmentSecret()
+    public async Task AdminAcceptsValidJwtSignedWithConfiguredSecret()
     {
-        Environment.SetEnvironmentVariable(GatewayFactory.JwtSigningKeyVariable, GatewayFactory.JwtSigningKey);
+        await using var factory = new GatewayFactory(GatewayFactory.CreateJwtConfiguration());
+        var client = factory.CreateClient();
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/_veyra/info");
+        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(
+            "Bearer",
+            CreateJwtToken(GatewayFactory.JwtSigningKey, "veyra-test"));
 
-        try
-        {
-            await using var factory = new GatewayFactory(GatewayFactory.CreateJwtConfiguration());
-            var client = factory.CreateClient();
-            using var request = new HttpRequestMessage(HttpMethod.Get, "/_veyra/info");
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(
-                "Bearer",
-                CreateJwtToken(GatewayFactory.JwtSigningKey, "veyra-test"));
+        var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
-            var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
-
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        }
-        finally
-        {
-            Environment.SetEnvironmentVariable(GatewayFactory.JwtSigningKeyVariable, null);
-        }
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
     [Fact]
-    public async Task AdminRejectsInvalidJwtWhenJwtEnabled()
+    public async Task AdminRejectsMalformedJwtWhenJwtEnabled()
     {
-        Environment.SetEnvironmentVariable(GatewayFactory.JwtSigningKeyVariable, GatewayFactory.JwtSigningKey);
+        await using var factory = new GatewayFactory(GatewayFactory.CreateJwtConfiguration());
+        var client = factory.CreateClient();
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/_veyra/info");
+        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(
+            "Bearer",
+            "not-a-valid-jwt");
 
-        try
-        {
-            await using var factory = new GatewayFactory(GatewayFactory.CreateJwtConfiguration());
-            var client = factory.CreateClient();
-            using var request = new HttpRequestMessage(HttpMethod.Get, "/_veyra/info");
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(
-                "Bearer",
-                "not-a-valid-jwt");
+        var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
+        var body = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
-            var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
+        Assert.True(
+            response.StatusCode == HttpStatusCode.Unauthorized,
+            $"Expected 401 Unauthorized but got {(int)response.StatusCode} {response.StatusCode}. Body: {body}");
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+        Assert.Contains("VEYRA_AUTH_INVALID", body, StringComparison.Ordinal);
+    }
 
-            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-            Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
-            var body = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-            Assert.Contains("VEYRA_AUTH_INVALID", body, StringComparison.Ordinal);
-        }
-        finally
-        {
-            Environment.SetEnvironmentVariable(GatewayFactory.JwtSigningKeyVariable, null);
-        }
+    [Fact]
+    public async Task AdminRejectsJwtWithInvalidSignatureWhenJwtEnabled()
+    {
+        await using var factory = new GatewayFactory(GatewayFactory.CreateJwtConfiguration());
+        var client = factory.CreateClient();
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/_veyra/info");
+        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(
+            "Bearer",
+            CreateJwtToken("abcdefghijklmnopqrstuvwxyz012345", "veyra-test"));
+
+        var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
+        var body = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        Assert.True(
+            response.StatusCode == HttpStatusCode.Unauthorized,
+            $"Expected 401 Unauthorized but got {(int)response.StatusCode} {response.StatusCode}. Body: {body}");
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+        Assert.Contains("VEYRA_AUTH_INVALID", body, StringComparison.Ordinal);
     }
 
     private static string CreateJwtToken(string signingKey, string issuer)
@@ -156,71 +160,44 @@ public sealed class PolicySchemeSelectionTests
     [Fact]
     public async Task DualAuthSelectsApiKeySchemeWhenApiKeyHeaderPresent()
     {
-        Environment.SetEnvironmentVariable(GatewayFactory.JwtSigningKeyVariable, GatewayFactory.JwtSigningKey);
+        await using var factory = new GatewayFactory(GatewayFactory.CreateDualAuthConfiguration());
+        var client = factory.CreateClient();
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/_veyra/info");
+        request.Headers.Add("X-Api-Key", GatewayFactory.DemoApiKey);
 
-        try
-        {
-            await using var factory = new GatewayFactory(GatewayFactory.CreateDualAuthConfiguration());
-            var client = factory.CreateClient();
-            using var request = new HttpRequestMessage(HttpMethod.Get, "/_veyra/info");
-            request.Headers.Add("X-Api-Key", GatewayFactory.DemoApiKey);
+        var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
-            var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
-
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        }
-        finally
-        {
-            Environment.SetEnvironmentVariable(GatewayFactory.JwtSigningKeyVariable, null);
-        }
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
     [Fact]
     public async Task DualAuthSelectsJwtSchemeWhenBearerHeaderPresent()
     {
-        Environment.SetEnvironmentVariable(GatewayFactory.JwtSigningKeyVariable, GatewayFactory.JwtSigningKey);
+        await using var factory = new GatewayFactory(GatewayFactory.CreateDualAuthConfiguration());
+        var client = factory.CreateClient();
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/_veyra/info");
+        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(
+            "Bearer",
+            CreateJwtToken(GatewayFactory.JwtSigningKey, "veyra-test"));
 
-        try
-        {
-            await using var factory = new GatewayFactory(GatewayFactory.CreateDualAuthConfiguration());
-            var client = factory.CreateClient();
-            using var request = new HttpRequestMessage(HttpMethod.Get, "/_veyra/info");
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(
-                "Bearer",
-                CreateJwtToken(GatewayFactory.JwtSigningKey, "veyra-test"));
+        var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
-            var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
-
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        }
-        finally
-        {
-            Environment.SetEnvironmentVariable(GatewayFactory.JwtSigningKeyVariable, null);
-        }
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
     [Fact]
     public async Task JwtOnlyAuthUsesJwtScheme()
     {
-        Environment.SetEnvironmentVariable(GatewayFactory.JwtSigningKeyVariable, GatewayFactory.JwtSigningKey);
+        await using var factory = new GatewayFactory(GatewayFactory.CreateJwtConfiguration());
+        var client = factory.CreateClient();
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/_veyra/info");
+        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(
+            "Bearer",
+            CreateJwtToken(GatewayFactory.JwtSigningKey, "veyra-test"));
 
-        try
-        {
-            await using var factory = new GatewayFactory(GatewayFactory.CreateJwtConfiguration());
-            var client = factory.CreateClient();
-            using var request = new HttpRequestMessage(HttpMethod.Get, "/_veyra/info");
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(
-                "Bearer",
-                CreateJwtToken(GatewayFactory.JwtSigningKey, "veyra-test"));
+        var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
-            var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
-
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        }
-        finally
-        {
-            Environment.SetEnvironmentVariable(GatewayFactory.JwtSigningKeyVariable, null);
-        }
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
     [Fact]

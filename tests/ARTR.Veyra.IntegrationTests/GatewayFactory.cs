@@ -65,13 +65,17 @@ public sealed class GatewayFactory : WebApplicationFactory<Program>
 
     public const string JwtSigningKey = "01234567890123456789012345678901";
 
+    public const string JwtSigningKeyConfigPath = "ARTR:Veyra:TestSecrets:JwtSigningKey";
+
     public static Dictionary<string, string?> CreateJwtConfiguration()
     {
         var config = CreateDefaultConfiguration();
         config["ARTR:Veyra:Authentication:Enabled"] = "true";
         config["ARTR:Veyra:Authentication:Jwt:Enabled"] = "true";
         config["ARTR:Veyra:Authentication:Jwt:Issuer"] = "veyra-test";
-        config["ARTR:Veyra:Authentication:Jwt:SigningKeySecretName"] = $"env:{JwtSigningKeyVariable}";
+        // Prefer config: secrets in tests — avoids parallel env-var races on CI.
+        config[JwtSigningKeyConfigPath] = JwtSigningKey;
+        config["ARTR:Veyra:Authentication:Jwt:SigningKeySecretName"] = $"config:{JwtSigningKeyConfigPath}";
         config["ARTR:Veyra:Admin:RequireAuthentication"] = "true";
         return config;
     }
@@ -81,7 +85,8 @@ public sealed class GatewayFactory : WebApplicationFactory<Program>
         var config = CreateApiKeyConfiguration();
         config["ARTR:Veyra:Authentication:Jwt:Enabled"] = "true";
         config["ARTR:Veyra:Authentication:Jwt:Issuer"] = "veyra-test";
-        config["ARTR:Veyra:Authentication:Jwt:SigningKeySecretName"] = $"env:{JwtSigningKeyVariable}";
+        config[JwtSigningKeyConfigPath] = JwtSigningKey;
+        config["ARTR:Veyra:Authentication:Jwt:SigningKeySecretName"] = $"config:{JwtSigningKeyConfigPath}";
         return config;
     }
 
