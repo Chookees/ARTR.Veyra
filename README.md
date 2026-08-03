@@ -1,5 +1,13 @@
 # ARTR Veyra
 
+[![CI](https://github.com/Chookees/ARTR.Veyra/actions/workflows/ci.yml/badge.svg)](https://github.com/Chookees/ARTR.Veyra/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/Chookees/ARTR.Veyra/actions/workflows/codeql.yml/badge.svg)](https://github.com/Chookees/ARTR.Veyra/actions/workflows/codeql.yml)
+[![Release](https://github.com/Chookees/ARTR.Veyra/actions/workflows/release.yml/badge.svg)](https://github.com/Chookees/ARTR.Veyra/actions/workflows/release.yml)
+[![Scheduled security](https://github.com/Chookees/ARTR.Veyra/actions/workflows/scheduled-security.yml/badge.svg)](https://github.com/Chookees/ARTR.Veyra/actions/workflows/scheduled-security.yml)
+[![Coverage](https://img.shields.io/badge/coverage-%E2%89%A590%25%20line%20%26%20branch-brightgreen)](coverlet.runsettings)
+[![.NET](https://img.shields.io/badge/.NET-10-512BD4?logo=dotnet)](global.json)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+
 **A secure, scalable, and observable open-source API gateway for modern distributed systems.**
 
 ARTR Veyra is a self-hosted Layer-7 API gateway built on .NET 10 and YARP. It provides authentication, rate limiting, observability, and admin endpoints without requiring containers or external databases.
