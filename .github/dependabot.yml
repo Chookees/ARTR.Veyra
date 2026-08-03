@@ -4,6 +4,10 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    ignore:
+      # Microsoft.AspNetCore.OpenApi 10.x source generators require Microsoft.OpenApi 2.x.
+      - dependency-name: Microsoft.OpenApi
+        versions: [">=3.0.0"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
