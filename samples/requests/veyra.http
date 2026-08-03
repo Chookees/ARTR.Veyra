@@ -1,0 +1,28 @@
+@baseUrl = http://127.0.0.1:5080
+@apiKey = demo-secret
+
+### Upstream A — hello
+GET {{baseUrl}}/a/hello
+
+### Upstream B — hello
+GET {{baseUrl}}/b/hello
+
+### Admin — info
+GET {{baseUrl}}/_veyra/info
+
+### Admin — config summary (requires API key when auth enabled)
+GET {{baseUrl}}/_veyra/config/summary
+X-Api-Key: {{apiKey}}
+
+### Health — live
+GET {{baseUrl}}/_veyra/health/live
+
+### Health — ready
+GET {{baseUrl}}/_veyra/health/ready
+
+### Health — startup
+GET {{baseUrl}}/_veyra/health/startup
+
+### Correlation header round-trip
+GET {{baseUrl}}/a/hello
+X-Correlation-ID: my-correlation-id-12345

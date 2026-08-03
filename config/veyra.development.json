@@ -1,0 +1,43 @@
+{
+  "ARTR": {
+    "Veyra": {
+      "Admin": {
+        "RequireAuthentication": false
+      },
+      "Authentication": {
+        "Enabled": true,
+        "ApiKey": {
+          "Enabled": true,
+          "HeaderName": "X-Api-Key",
+          "Keys": [
+            {
+              "Id": "demo-key",
+              "Name": "demo",
+              "HashSha256Hex": "cd577fe2561ebff23505db0bb006300c7cdecbd46bc0e03c449afafaca2c25bf",
+              "Roles": [ "admin", "reader" ]
+            }
+          ]
+        },
+        "Jwt": {
+          "Enabled": false
+        }
+      },
+      "Authorization": {
+        "Enabled": false
+      },
+      "RateLimiting": {
+        "Enabled": true,
+        "GlobalPermitLimit": 5000,
+        "GlobalWindowSeconds": 60
+      },
+      "Observability": {
+        "ConsoleLogging": true,
+        "Prometheus": {
+          "Enabled": true,
+          "Path": "/metrics"
+        }
+      }
+    }
+  },
+  "Urls": "http://127.0.0.1:5080"
+}

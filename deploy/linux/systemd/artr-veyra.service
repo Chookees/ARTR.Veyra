@@ -1,0 +1,19 @@
+[Unit]
+Description=ARTR Veyra API Gateway
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+ExecStart=/opt/artr-veyra/ARTR.Veyra.Host
+WorkingDirectory=/opt/artr-veyra
+Restart=on-failure
+RestartSec=5
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=DOTNET_ENVIRONMENT=Production
+# EnvironmentFile=-/etc/artr-veyra/veyra.env
+KillSignal=SIGINT
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target

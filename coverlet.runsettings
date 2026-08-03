@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat Code Coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <Include>[ARTR.Veyra.Core]*,[ARTR.Veyra.Infrastructure]*,[ARTR.Veyra.Authentication]*,[ARTR.Veyra.Observability]*,[ARTR.Veyra.Host]*</Include>
+          <Exclude>[*]*.Program,[*]*.Migrations.*</Exclude>
+          <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute</ExcludeByAttribute>
+          <IncludeDirectory>src/</IncludeDirectory>
+          <ExcludeByFile>**/Program.cs</ExcludeByFile>
+          <SingleHit>false</SingleHit>
+          <UseSourceLink>false</UseSourceLink>
+          <IncludeTestAssembly>false</IncludeTestAssembly>
+          <SkipAutoProps>true</SkipAutoProps>
+          <Threshold>90</Threshold>
+          <ThresholdType>line,branch</ThresholdType>
+          <ThresholdStat>total</ThresholdStat>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

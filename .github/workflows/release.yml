@@ -1,0 +1,41 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Restore
+        run: dotnet restore ARTR.Veyra.sln --locked-mode
+      - name: Publish native artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/publish
+          for rid in win-x64 win-arm64 linux-x64 linux-arm64; do
+            dotnet publish src/ARTR.Veyra.Host/ARTR.Veyra.Host.csproj -c Release -r "$rid" --self-contained false -o "artifacts/publish/fdd-$rid"
+            dotnet publish src/ARTR.Veyra.Host/ARTR.Veyra.Host.csproj -c Release -r "$rid" --self-contained true -o "artifacts/publish/scd-$rid" /p:PublishSingleFile=true
+            tar -czf "artifacts/publish/artr-veyra-fdd-$rid.tar.gz" -C "artifacts/publish/fdd-$rid" .
+            tar -czf "artifacts/publish/artr-veyra-scd-$rid.tar.gz" -C "artifacts/publish/scd-$rid" .
+          done
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: artr-veyra-native
+          path: artifacts/publish/*.tar.gz
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/publish/*.tar.gz
+          generate_release_notes: true

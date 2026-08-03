@@ -1,0 +1,60 @@
+## .NET
+bin/
+obj/
+out/
+publish/
+artifacts/
+TestResults/
+BenchmarkDotNet.Artifacts/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+*.DotSettings.user
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## Build / IDE
+.idea/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+## Coverage / reports
+coverage/
+coverage-report/
+*.coverage
+*.coveragexml
+*.lcov
+report/
+
+## Secrets / local config
+*.pfx
+*.p12
+*.key
+.env
+.env.*
+!.env.example
+appsettings.*.local.json
+config/veyra.local.json
+
+## Logs
+*.log
+logs/
+
+## Native publish outputs
+dist/
+releases/
+*.nupkg
+*.snupkg
+
+## Tooling
+.nuget/
+packages/
+
+## Local agent runtime artifacts
+/inDev/

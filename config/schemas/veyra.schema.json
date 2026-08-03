@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://artr.dev/schemas/veyra.schema.json",
+  "title": "ARTR Veyra configuration",
+  "type": "object",
+  "properties": {
+    "ARTR": {
+      "type": "object",
+      "properties": {
+        "Veyra": {
+          "type": "object",
+          "properties": {
+            "Admin": {
+              "type": "object",
+              "properties": {
+                "Enabled": { "type": "boolean" },
+                "PathBase": { "type": "string", "default": "/_veyra" },
+                "RequireAuthentication": { "type": "boolean" }
+              }
+            },
+            "Authentication": {
+              "type": "object",
+              "properties": {
+                "Enabled": { "type": "boolean" },
+                "Jwt": { "type": "object" },
+                "ApiKey": { "type": "object" }
+              }
+            },
+            "Authorization": { "type": "object" },
+            "RateLimiting": { "type": "object" },
+            "RequestLimits": { "type": "object" },
+            "ForwardedHeaders": { "type": "object" },
+            "Tls": { "type": "object" },
+            "Observability": { "type": "object" },
+            "Secrets": { "type": "object" },
+            "Health": { "type": "object" },
+            "Transforms": { "type": "object" },
+            "Shutdown": { "type": "object" }
+          }
+        }
+      }
+    },
+    "ReverseProxy": {
+      "type": "object",
+      "description": "YARP reverse proxy routes and clusters",
+      "properties": {
+        "Routes": { "type": "object" },
+        "Clusters": { "type": "object" }
+      }
+    },
+    "Urls": { "type": "string" }
+  }
+}

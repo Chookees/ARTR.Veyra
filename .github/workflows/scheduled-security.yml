@@ -1,0 +1,17 @@
+name: Scheduled security
+
+on:
+  schedule:
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+
+jobs:
+  nuget-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet restore ARTR.Veyra.sln --locked-mode
+      - run: dotnet list ARTR.Veyra.sln package --vulnerable --include-transitive

@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>ARTR.Veyra.UnitTests</RootNamespace>
+    <IsTestProject>true</IsTestProject>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ARTR.Veyra.Core\ARTR.Veyra.Core.csproj" />
+    <ProjectReference Include="..\..\src\ARTR.Veyra.Infrastructure\ARTR.Veyra.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\ARTR.Veyra.Authentication\ARTR.Veyra.Authentication.csproj" />
+    <ProjectReference Include="..\..\src\ARTR.Veyra.Observability\ARTR.Veyra.Observability.csproj" />
+    <ProjectReference Include="..\..\src\ARTR.Veyra.Host\ARTR.Veyra.Host.csproj" />
+  </ItemGroup>
+</Project>

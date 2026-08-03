@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>ARTR.Veyra.Authentication</RootNamespace>
+    <AssemblyName>ARTR.Veyra.Authentication</AssemblyName>
+    <Description>Authentication and authorization for ARTR Veyra.</Description>
+    <IsProductionAssembly>true</IsProductionAssembly>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ARTR.Veyra.Core\ARTR.Veyra.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+  </ItemGroup>
+</Project>

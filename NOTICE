@@ -1,0 +1,8 @@
+ARTR Veyra
+Copyright 2026 ARTR contributors
+
+This product includes software developed by ARTR contributors.
+
+Third-party licenses for dependencies are available from their respective NuGet packages
+and upstream repositories (primarily MIT and Apache-2.0). See Directory.Packages.props
+for the dependency inventory.

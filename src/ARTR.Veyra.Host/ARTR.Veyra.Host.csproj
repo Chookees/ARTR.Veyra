@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <RootNamespace>ARTR.Veyra.Host</RootNamespace>
+    <AssemblyName>ARTR.Veyra.Host</AssemblyName>
+    <Description>ARTR Veyra — A secure, scalable, and observable open-source API gateway for modern distributed systems.</Description>
+    <IsProductionAssembly>true</IsProductionAssembly>
+    <AssemblyTitle>ARTR Veyra</AssemblyTitle>
+    <UserSecretsId>artr-veyra-host</UserSecretsId>
+    <RuntimeIdentifiers>win-x64;win-arm64;linux-x64;linux-arm64</RuntimeIdentifiers>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ARTR.Veyra.Core\ARTR.Veyra.Core.csproj" />
+    <ProjectReference Include="..\ARTR.Veyra.Infrastructure\ARTR.Veyra.Infrastructure.csproj" />
+    <ProjectReference Include="..\ARTR.Veyra.Authentication\ARTR.Veyra.Authentication.csproj" />
+    <ProjectReference Include="..\ARTR.Veyra.Observability\ARTR.Veyra.Observability.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Yarp.ReverseProxy" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.OpenApi" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" />
+    <PackageReference Include="Scalar.AspNetCore" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\config\veyra.example.json" Link="config\veyra.example.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="..\..\config\veyra.development.json" Link="config\veyra.development.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="..\..\config\schemas\veyra.schema.json" Link="config\schemas\veyra.schema.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="ARTR.Veyra.UnitTests" />
+  </ItemGroup>
+</Project>

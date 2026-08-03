@@ -1,0 +1,14 @@
+<Project>
+  <PropertyGroup Condition="'$(IsTestProject)' == 'true'">
+    <IsPackable>false</IsPackable>
+    <NoWarn>$(NoWarn);CA1707;CA1859;xUnit1051;CA2007</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsProductionAssembly)' == 'true'">
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$(MSBuildProjectName.Contains('Benchmarks'))">
+    <NoWarn>$(NoWarn);CA1822;CA1707</NoWarn>
+  </PropertyGroup>
+</Project>

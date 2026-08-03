@@ -1,0 +1,15 @@
+### Upstream A via gateway
+GET http://127.0.0.1:5080/a/hello
+
+### Upstream B via gateway
+GET http://127.0.0.1:5080/b/hello
+
+### Admin info
+GET http://127.0.0.1:5080/_veyra/info
+
+### Health live
+GET http://127.0.0.1:5080/_veyra/health/live
+
+### Admin with API key (development demo key)
+GET http://127.0.0.1:5080/_veyra/info
+X-Api-Key: demo-secret

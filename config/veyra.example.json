@@ -1,0 +1,124 @@
+{
+  "$schema": "./schemas/veyra.schema.json",
+  "ARTR": {
+    "Veyra": {
+      "Admin": {
+        "Enabled": true,
+        "PathBase": "/_veyra",
+        "RequireAuthentication": false
+      },
+      "Authentication": {
+        "Enabled": false,
+        "Jwt": {
+          "Enabled": false,
+          "RequireHttpsMetadata": true
+        },
+        "ApiKey": {
+          "Enabled": false,
+          "HeaderName": "X-Api-Key",
+          "Keys": []
+        }
+      },
+      "Authorization": {
+        "Enabled": false,
+        "Policies": {}
+      },
+      "RateLimiting": {
+        "Enabled": true,
+        "GlobalPermitLimit": 1000,
+        "GlobalWindowSeconds": 60,
+        "Policies": [
+          {
+            "Name": "strict",
+            "PermitLimit": 60,
+            "WindowSeconds": 60,
+            "QueueLimit": 0
+          }
+        ]
+      },
+      "RequestLimits": {
+        "MaxRequestBodyBytes": 10485760,
+        "RequestHeadersTimeoutSeconds": 30,
+        "KeepAliveTimeoutSeconds": 120
+      },
+      "ForwardedHeaders": {
+        "Enabled": false,
+        "KnownProxies": [],
+        "KnownNetworks": [],
+        "ForwardLimit": 1
+      },
+      "Tls": {
+        "UseHttpsRedirection": false
+      },
+      "Observability": {
+        "ServiceName": "ARTR.Veyra",
+        "ConsoleLogging": true,
+        "Otlp": {
+          "Enabled": false,
+          "Endpoint": "http://127.0.0.1:4317"
+        },
+        "Prometheus": {
+          "Enabled": false,
+          "Path": "/metrics"
+        }
+      },
+      "Secrets": {
+        "Providers": [
+          { "Type": "environment" },
+          { "Type": "configuration" }
+        ]
+      },
+      "Health": {
+        "Enabled": true,
+        "LivePath": "/health/live",
+        "ReadyPath": "/health/ready",
+        "StartupPath": "/health/startup"
+      },
+      "Transforms": {
+        "Allowlist": []
+      },
+      "Shutdown": {
+        "ShutdownTimeoutSeconds": 30
+      }
+    }
+  },
+  "ReverseProxy": {
+    "Routes": {
+      "upstream-a": {
+        "ClusterId": "cluster-a",
+        "Match": {
+          "Path": "/a/{**catch-all}"
+        },
+        "Transforms": [
+          { "PathPattern": "/{**catch-all}" }
+        ]
+      },
+      "upstream-b": {
+        "ClusterId": "cluster-b",
+        "Match": {
+          "Path": "/b/{**catch-all}"
+        },
+        "Transforms": [
+          { "PathPattern": "/{**catch-all}" }
+        ]
+      }
+    },
+    "Clusters": {
+      "cluster-a": {
+        "Destinations": {
+          "d1": {
+            "Address": "http://127.0.0.1:5101/"
+          }
+        }
+      },
+      "cluster-b": {
+        "Destinations": {
+          "d1": {
+            "Address": "http://127.0.0.1:5102/"
+          }
+        }
+      }
+    }
+  },
+  "Urls": "http://127.0.0.1:5080"
+}

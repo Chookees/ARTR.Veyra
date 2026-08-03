@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  build-test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Tool restore
+        run: dotnet tool restore
+      - name: Restore (locked)
+        run: dotnet restore ARTR.Veyra.sln --locked-mode
+      - name: Format
+        run: dotnet format ARTR.Veyra.sln --verify-no-changes
+      - name: Build
+        run: dotnet build ARTR.Veyra.sln --configuration Release --no-restore
+      - name: Test with coverage
+        shell: bash
+        run: |
+          rm -rf artifacts/TestResults
+          mkdir -p artifacts/TestResults
+          dotnet test ARTR.Veyra.sln --configuration Release --no-build \
+            --collect:"XPlat Code Coverage" \
+            --results-directory artifacts/TestResults \
+            --settings coverlet.runsettings
+      - name: Coverage report
+        shell: bash
+        run: |
+          dotnet tool run reportgenerator \
+            "-reports:artifacts/TestResults/**/coverage.cobertura.xml" \
+            "-targetdir:artifacts/coverage-report" \
+            "-reporttypes:TextSummary" \
+            "-assemblyfilters:+ARTR.Veyra.Core;+ARTR.Veyra.Infrastructure;+ARTR.Veyra.Authentication;+ARTR.Veyra.Observability;+ARTR.Veyra.Host"
+      - name: Coverage gate
+        shell: pwsh
+        run: ./build/Check-Coverage.ps1

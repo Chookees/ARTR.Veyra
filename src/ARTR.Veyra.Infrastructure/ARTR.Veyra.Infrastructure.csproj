@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>ARTR.Veyra.Infrastructure</RootNamespace>
+    <AssemblyName>ARTR.Veyra.Infrastructure</AssemblyName>
+    <Description>Infrastructure adapters for ARTR Veyra.</Description>
+    <IsProductionAssembly>true</IsProductionAssembly>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ARTR.Veyra.Core\ARTR.Veyra.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+  </ItemGroup>
+</Project>
