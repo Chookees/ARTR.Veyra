@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 
@@ -70,7 +71,7 @@ public sealed class VeyraJwtBearerPostConfigureOptions : IPostConfigureOptions<J
             options.MetadataAddress = jwtOptions.MetadataAddress;
         }
 
-        AttachChallengeEvents(options);
+        AttachAuthenticationEvents(options);
     }
 
     private void ConfigureSymmetricSigningKey(JwtBearerOptions options, JwtOptions jwtOptions)
@@ -87,20 +88,22 @@ public sealed class VeyraJwtBearerPostConfigureOptions : IPostConfigureOptions<J
         }
 
         // Local symmetric validation only — never consult OIDC metadata.
+        var configuration = new OpenIdConnectConfiguration();
         options.Authority = null;
         options.MetadataAddress = null!;
         options.RequireHttpsMetadata = false;
         options.RefreshOnIssuerKeyNotFound = false;
-        options.Configuration = new OpenIdConnectConfiguration();
+        options.Configuration = configuration;
+        options.ConfigurationManager = new StaticConfigurationManager<OpenIdConnectConfiguration>(configuration);
         options.TokenValidationParameters.IssuerSigningKey =
             new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey));
         options.TokenValidationParameters.ValidateIssuerSigningKey = true;
         options.TokenValidationParameters.RequireSignedTokens = true;
         options.TokenValidationParameters.SignatureValidator = null;
-        AttachChallengeEvents(options);
+        AttachAuthenticationEvents(options);
     }
 
-    private static void AttachChallengeEvents(JwtBearerOptions options)
+    private static void AttachAuthenticationEvents(JwtBearerOptions options)
     {
         var priorFailed = options.Events?.OnAuthenticationFailed;
         var priorChallenge = options.Events?.OnChallenge;
@@ -108,11 +111,17 @@ public sealed class VeyraJwtBearerPostConfigureOptions : IPostConfigureOptions<J
 
         options.Events.OnAuthenticationFailed = async context =>
         {
-            // Swallow token parse/validation exceptions so they become auth failures (401), not 500s.
             if (priorFailed is not null)
             {
                 await priorFailed(context).ConfigureAwait(false);
+                if (context.Result is not null)
+                {
+                    return;
+                }
             }
+
+            // Prevent JwtBearerHandler from rethrowing validation/parse exceptions as 500.
+            context.NoResult();
         };
 
         options.Events.OnChallenge = async context =>
@@ -127,30 +136,35 @@ public sealed class VeyraJwtBearerPostConfigureOptions : IPostConfigureOptions<J
             }
 
             context.HandleResponse();
-            if (context.Response.HasStarted)
-            {
-                return;
-            }
-
-            var problem = new ProblemDetails
-            {
-                Type = "https://tools.ietf.org/html/rfc7235#section-3.1",
-                Title = "Unauthorized",
-                Status = StatusCodes.Status401Unauthorized,
-                Detail = "Authentication is required or the provided credentials are invalid.",
-                Instance = context.Request.Path,
-                Extensions =
-                {
-                    ["errorCode"] = VeyraErrorCodes.AuthInvalid,
-                    ["traceId"] = Activity.Current?.Id ?? context.HttpContext.TraceIdentifier,
-                },
-            };
-
-            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            await context.Response.WriteAsJsonAsync(
-                problem,
-                options: null,
-                contentType: "application/problem+json").ConfigureAwait(false);
+            await WriteUnauthorizedProblemAsync(context.HttpContext).ConfigureAwait(false);
         };
+    }
+
+    internal static async Task WriteUnauthorizedProblemAsync(HttpContext httpContext)
+    {
+        if (httpContext.Response.HasStarted)
+        {
+            return;
+        }
+
+        var problem = new ProblemDetails
+        {
+            Type = "https://tools.ietf.org/html/rfc7235#section-3.1",
+            Title = "Unauthorized",
+            Status = StatusCodes.Status401Unauthorized,
+            Detail = "Authentication is required or the provided credentials are invalid.",
+            Instance = httpContext.Request.Path,
+            Extensions =
+            {
+                ["errorCode"] = VeyraErrorCodes.AuthInvalid,
+                ["traceId"] = Activity.Current?.Id ?? httpContext.TraceIdentifier,
+            },
+        };
+
+        httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        await httpContext.Response.WriteAsJsonAsync(
+            problem,
+            options: null,
+            contentType: "application/problem+json").ConfigureAwait(false);
     }
 }

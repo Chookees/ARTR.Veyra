@@ -29,6 +29,9 @@ public static class AuthenticationServiceCollectionExtensions
             .AddPolicyScheme(PolicySchemeName, PolicySchemeName, static options =>
             {
                 options.ForwardDefaultSelector = SelectAuthenticationScheme;
+                // Keep challenge/forbid on the same selected scheme so JWT OnChallenge runs.
+                options.ForwardChallenge = null;
+                options.ForwardForbid = null;
             });
 
         services.AddVeyraAuthorization();
