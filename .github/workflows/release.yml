@@ -30,7 +30,7 @@ jobs:
             tar -czf "artifacts/publish/artr-veyra-scd-$rid.tar.gz" -C "artifacts/publish/scd-$rid" .
           done
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: artr-veyra-native
           path: artifacts/publish/*.tar.gz
