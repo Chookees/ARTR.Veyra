@@ -43,6 +43,7 @@ public sealed class GatewayFactory : WebApplicationFactory<Program>
         ["ARTR:Veyra:Observability:Otlp:Enabled"] = "false",
         ["ReverseProxy:Routes:upstream-a:ClusterId"] = "cluster-a",
         ["ReverseProxy:Routes:upstream-a:Match:Path"] = "/a/{**catch-all}",
+        ["ReverseProxy:Routes:upstream-a:Metadata:AllowAnonymous"] = "true",
         ["ReverseProxy:Routes:upstream-a:Transforms:0:PathPattern"] = "/{**catch-all}",
         ["ReverseProxy:Clusters:cluster-a:Destinations:d1:Address"] = "http://127.0.0.1:59999/",
     };

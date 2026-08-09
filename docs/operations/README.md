@@ -11,6 +11,12 @@
 - Windows: `deploy/windows/install-service.ps1`
 - Linux: `deploy/linux/artr-veyra.service` + `install.sh`
 
+## Observability
+
+- [Observability](observability.md)
+- [Golden signals](golden-signals.md)
+- [Canary and outlier detection](../traffic/canary-and-outlier.md)
+
 ## Runbooks
 
 - [Restart](runbooks/restart.md)

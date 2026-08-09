@@ -82,6 +82,13 @@ public static class AdminEndpointRouteBuilderExtensions
                     otlpEnabled = value.Observability.Otlp.Enabled,
                     prometheusEnabled = value.Observability.Prometheus.Enabled,
                 },
+                trafficEngineering = new
+                {
+                    safeRetriesEnabled = value.TrafficEngineering.SafeRetries.Enabled,
+                    outlierDetectionEnabled = value.TrafficEngineering.OutlierDetection.Enabled,
+                    hedgingEnabled = value.TrafficEngineering.Hedging.Enabled,
+                    canaryEnabled = value.Canary.Enabled,
+                },
                 configuration = new
                 {
                     generation = activation.Generation,
@@ -89,6 +96,56 @@ public static class AdminEndpointRouteBuilderExtensions
                     lastKnownGoodActive = activation.IsLastKnownGoodActive,
                     lastActivatedUtc = activation.LastActivatedUtc,
                 },
+            });
+        });
+
+        group.MapGet("/diagnostics", (
+            Microsoft.Extensions.Options.IOptions<VeyraOptions> opts,
+            ARTR.Veyra.Infrastructure.Configuration.IConfigurationActivationState activation,
+            Yarp.ReverseProxy.Configuration.IProxyConfigProvider proxyConfig) =>
+        {
+            var value = opts.Value;
+            var config = proxyConfig.GetConfig();
+            var clusters = config.Clusters.Take(64).Select(cluster => new
+            {
+                cluster.ClusterId,
+                destinationCount = cluster.Destinations?.Count ?? 0,
+                loadBalancingPolicy = cluster.LoadBalancingPolicy,
+                passiveHealthEnabled = cluster.HealthCheck?.Passive?.Enabled == true,
+                destinations = (cluster.Destinations ?? new Dictionary<string, Yarp.ReverseProxy.Configuration.DestinationConfig>())
+                    .Take(32)
+                    .Select(pair => new
+                    {
+                        id = pair.Key,
+                        address = pair.Value.Address,
+                        weight = pair.Value.Metadata is not null &&
+                                 pair.Value.Metadata.TryGetValue("Weight", out var weight)
+                            ? weight
+                            : null,
+                    }),
+            });
+
+            return Results.Json(new
+            {
+                product = VeyraConstants.ProductName,
+                configuration = new
+                {
+                    generation = activation.Generation,
+                    fingerprint = activation.Fingerprint,
+                    lastKnownGoodActive = activation.IsLastKnownGoodActive,
+                },
+                features = new
+                {
+                    enabled = value.Features.Enabled.Take(32),
+                    pluginsEnabled = value.Features.Plugins.Enabled,
+                    pluginCount = value.Features.Plugins.Entries.Count,
+                },
+                routingSecurity = new
+                {
+                    value.RoutingSecurity.DenyAnonymousRoutesByDefault,
+                },
+                clusters,
+                routeCount = Math.Min(config.Routes.Count, 256),
             });
         });
 

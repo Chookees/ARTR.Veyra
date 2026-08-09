@@ -7,7 +7,7 @@
           <Format>cobertura</Format>
           <Include>[ARTR.Veyra.Core]*,[ARTR.Veyra.Infrastructure]*,[ARTR.Veyra.Authentication]*,[ARTR.Veyra.Observability]*,[ARTR.Veyra.Host]*</Include>
           <Exclude>[*]*.Program,[*]*.Migrations.*</Exclude>
-          <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute</ExcludeByAttribute>
+          <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute,ExcludeFromCodeCoverage</ExcludeByAttribute>
           <IncludeDirectory>src/</IncludeDirectory>
           <ExcludeByFile>**/Program.cs</ExcludeByFile>
           <SingleHit>false</SingleHit>

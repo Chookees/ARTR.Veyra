@@ -29,6 +29,110 @@ public sealed class VeyraOptions
     public ShutdownOptions Shutdown { get; init; } = new();
 
     public ConfigurationReloadOptions ConfigurationReload { get; init; } = new();
+
+    public RoutingSecurityOptions RoutingSecurity { get; init; } = new();
+
+    public TrafficEngineeringOptions TrafficEngineering { get; init; } = new();
+
+    public CanaryOptions Canary { get; init; } = new();
+
+    public FeaturesOptions Features { get; init; } = new();
+}
+
+public sealed class RoutingSecurityOptions
+{
+    /// <summary>
+    /// When authentication is enabled, every YARP route must set Metadata.AllowAnonymous=true
+    /// or Metadata.AuthorizationPolicy to a known policy name.
+    /// </summary>
+    public bool DenyAnonymousRoutesByDefault { get; init; } = true;
+}
+
+public sealed class TrafficEngineeringOptions
+{
+    public bool ValidateClusterWeights { get; init; } = true;
+
+    public SafeRetryOptions SafeRetries { get; init; } = new();
+
+    public OutlierDetectionOptions OutlierDetection { get; init; } = new();
+
+    public HedgingOptions Hedging { get; init; } = new();
+}
+
+public sealed class SafeRetryOptions
+{
+    public bool Enabled { get; init; }
+
+    public int MaxAttempts { get; init; } = 2;
+
+    public int TotalTimeoutSeconds { get; init; } = 10;
+
+    public IList<string> IdempotentMethods { get; init; } = ["GET", "HEAD", "OPTIONS"];
+}
+
+public sealed class OutlierDetectionOptions
+{
+    public bool Enabled { get; init; }
+
+    public int ConsecutiveFailureEjectionThreshold { get; init; } = 5;
+
+    public int EjectionDurationSeconds { get; init; } = 30;
+}
+
+public sealed class HedgingOptions
+{
+    public bool Enabled { get; init; }
+
+    public int DelayMilliseconds { get; init; } = 50;
+
+    public int MaxHedges { get; init; } = 1;
+}
+
+public sealed class CanaryOptions
+{
+    public bool Enabled { get; init; }
+
+    public IList<CanarySplitOptions> Splits { get; init; } = [];
+}
+
+public sealed class CanarySplitOptions
+{
+    public string Name { get; init; } = string.Empty;
+
+    public string ClusterId { get; init; } = string.Empty;
+
+    /// <summary>Destination id → weight percentage. Must sum to 100 when enabled.</summary>
+    public IDictionary<string, int> Weights { get; init; } =
+        new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+
+    public string? MatchHeaderName { get; init; }
+
+    public string? MatchHeaderValue { get; init; }
+}
+
+public sealed class FeaturesOptions
+{
+    public IList<string> Enabled { get; init; } = [];
+
+    public PluginFeaturesOptions Plugins { get; init; } = new();
+}
+
+public sealed class PluginFeaturesOptions
+{
+    public bool Enabled { get; init; }
+
+    public string AllowedRoot { get; init; } = string.Empty;
+
+    public IList<PluginEntryOptions> Entries { get; init; } = [];
+}
+
+public sealed class PluginEntryOptions
+{
+    public string Id { get; init; } = string.Empty;
+
+    public string Path { get; init; } = string.Empty;
+
+    public string Sha256Hex { get; init; } = string.Empty;
 }
 
 public sealed class AdminOptions

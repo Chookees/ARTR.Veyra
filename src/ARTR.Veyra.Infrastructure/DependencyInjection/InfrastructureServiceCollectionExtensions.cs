@@ -1,6 +1,8 @@
+using ARTR.Veyra.Core.Plugins;
 using ARTR.Veyra.Core.RateLimiting;
 using ARTR.Veyra.Core.Secrets;
 using ARTR.Veyra.Infrastructure.Configuration;
+using ARTR.Veyra.Infrastructure.Plugins;
 using ARTR.Veyra.Infrastructure.RateLimiting;
 using ARTR.Veyra.Infrastructure.Secrets;
 using ARTR.Veyra.Infrastructure.Transforms;
@@ -17,6 +19,7 @@ public static class InfrastructureServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(configuration);
 
         services.AddSingleton<IRateLimiterStore, MemoryRateLimiterStore>();
+        services.AddSingleton<IPluginLoader, Sha256PluginLoader>();
         services.AddSingleton<YarpTransformAllowlistValidator>();
         services.AddSingleton<ConfigurationActivationService>();
         services.AddSingleton<IConfigurationActivationState>(sp => sp.GetRequiredService<ConfigurationActivationService>());

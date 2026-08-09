@@ -16,7 +16,10 @@ Instrumentation includes:
 
 - ASP.NET Core requests
 - Outbound HTTP (YARP upstream calls)
-- Custom meter `ARTR.Veyra` (e.g. `veyra_config_activation_failures_total`)
+- Custom meter `ARTR.Veyra`:
+  - `veyra.requests.total`, `veyra.auth.failures.total`, `veyra.ratelimit.exceeded.total`, `veyra.proxy.errors.total`
+  - `veyra.destinations.healthy`, `veyra.destinations.ejected` (gauges)
+  - `veyra_config_activation_failures_total`
 
 ## Prometheus
 
@@ -28,9 +31,10 @@ Instrumentation includes:
 |----------|------|
 | `GET /_veyra/info` | Product name, version, feature flags |
 | `GET /_veyra/config/summary` | Non-secret configuration summary and activation generation/fingerprint |
+| `GET /_veyra/diagnostics` | Clusters, destination weights, passive health, routing security flags |
 
 ## Dashboards
 
 Correlate gateway logs and traces using `X-Correlation-ID`. Activation failures increment `veyra_config_activation_failures_total` — alert on sustained increases after configuration changes.
 
-See [health](health.md) and [configuration reload](../configuration/reload.md).
+See [golden signals](golden-signals.md), [health](health.md), and [configuration reload](../configuration/reload.md).

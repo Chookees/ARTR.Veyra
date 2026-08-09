@@ -77,6 +77,49 @@
       "Transforms": {
         "Allowlist": []
       },
+      "RoutingSecurity": {
+        "DenyAnonymousRoutesByDefault": true
+      },
+      "TrafficEngineering": {
+        "ValidateClusterWeights": true,
+        "SafeRetries": {
+          "Enabled": false,
+          "MaxAttempts": 2,
+          "TotalTimeoutSeconds": 10,
+          "IdempotentMethods": ["GET", "HEAD", "OPTIONS"]
+        },
+        "OutlierDetection": {
+          "Enabled": true,
+          "ConsecutiveFailureEjectionThreshold": 5,
+          "EjectionDurationSeconds": 30
+        },
+        "Hedging": {
+          "Enabled": false,
+          "DelayMilliseconds": 50,
+          "MaxHedges": 1
+        }
+      },
+      "Canary": {
+        "Enabled": true,
+        "Splits": [
+          {
+            "Name": "default",
+            "ClusterId": "cluster-canary",
+            "Weights": {
+              "stable": 90,
+              "canary": 10
+            }
+          }
+        ]
+      },
+      "Features": {
+        "Enabled": [],
+        "Plugins": {
+          "Enabled": false,
+          "AllowedRoot": "",
+          "Entries": []
+        }
+      },
       "Shutdown": {
         "ShutdownTimeoutSeconds": 30
       }
@@ -89,6 +132,9 @@
         "Match": {
           "Path": "/a/{**catch-all}"
         },
+        "Metadata": {
+          "AllowAnonymous": "true"
+        },
         "Transforms": [
           { "PathPattern": "/{**catch-all}" }
         ]
@@ -98,6 +144,22 @@
         "Match": {
           "Path": "/b/{**catch-all}"
         },
+        "Metadata": {
+          "AllowAnonymous": "true",
+          "RateLimitPolicy": "strict"
+        },
+        "Transforms": [
+          { "PathPattern": "/{**catch-all}" }
+        ]
+      },
+      "canary": {
+        "ClusterId": "cluster-canary",
+        "Match": {
+          "Path": "/canary/{**catch-all}"
+        },
+        "Metadata": {
+          "AllowAnonymous": "true"
+        },
         "Transforms": [
           { "PathPattern": "/{**catch-all}" }
         ]
@@ -105,6 +167,21 @@
     },
     "Clusters": {
       "cluster-a": {
+        "LoadBalancingPolicy": "PowerOfTwoChoices",
+        "HealthCheck": {
+          "Active": {
+            "Enabled": true,
+            "Interval": "00:00:10",
+            "Timeout": "00:00:05",
+            "Policy": "ConsecutiveFailures",
+            "Path": "/health"
+          },
+          "Passive": {
+            "Enabled": true,
+            "Policy": "TransportFailureRate",
+            "ReactivationPeriod": "00:00:30"
+          }
+        },
         "Destinations": {
           "d1": {
             "Address": "http://127.0.0.1:5101/"
@@ -115,6 +192,19 @@
         "Destinations": {
           "d1": {
             "Address": "http://127.0.0.1:5102/"
+          }
+        }
+      },
+      "cluster-canary": {
+        "LoadBalancingPolicy": "PowerOfTwoChoices",
+        "Destinations": {
+          "stable": {
+            "Address": "http://127.0.0.1:5101/",
+            "Metadata": { "Weight": "90" }
+          },
+          "canary": {
+            "Address": "http://127.0.0.1:5102/",
+            "Metadata": { "Weight": "10" }
           }
         }
       }

@@ -26,10 +26,134 @@ public sealed partial class VeyraOptionsValidator : IValidateOptions<VeyraOption
         ValidateHealth(options.Health, failures);
         ValidateTransforms(options.Transforms, failures);
         ValidateShutdown(options.Shutdown, failures);
+        ValidateTrafficEngineering(options.TrafficEngineering, failures);
+        ValidateCanaryOptions(options.Canary, failures);
+        ValidateFeatures(options.Features, failures);
 
         return failures.Count == 0
             ? ValidateOptionsResult.Success
             : ValidateOptionsResult.Fail(failures);
+    }
+
+    private static void ValidateTrafficEngineering(TrafficEngineeringOptions traffic, List<string> failures)
+    {
+        var retries = traffic.SafeRetries;
+        if (retries.Enabled)
+        {
+            if (retries.MaxAttempts is < 1 or > 5)
+            {
+                failures.Add("TrafficEngineering.SafeRetries.MaxAttempts must be between 1 and 5.");
+            }
+
+            if (retries.TotalTimeoutSeconds is < 1 or > 120)
+            {
+                failures.Add("TrafficEngineering.SafeRetries.TotalTimeoutSeconds must be between 1 and 120.");
+            }
+
+            if (retries.IdempotentMethods.Count == 0)
+            {
+                failures.Add("TrafficEngineering.SafeRetries.IdempotentMethods must not be empty when enabled.");
+            }
+
+            foreach (var method in retries.IdempotentMethods)
+            {
+                if (string.IsNullOrWhiteSpace(method))
+                {
+                    failures.Add("TrafficEngineering.SafeRetries.IdempotentMethods cannot contain empty values.");
+                    break;
+                }
+
+                if (string.Equals(method, "POST", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(method, "PATCH", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(method, "CONNECT", StringComparison.OrdinalIgnoreCase))
+                {
+                    failures.Add(
+                        $"TrafficEngineering.SafeRetries rejects non-idempotent method '{method}'.");
+                }
+            }
+        }
+
+        var outlier = traffic.OutlierDetection;
+        if (outlier.Enabled)
+        {
+            if (outlier.ConsecutiveFailureEjectionThreshold is < 1 or > 100)
+            {
+                failures.Add(
+                    "TrafficEngineering.OutlierDetection.ConsecutiveFailureEjectionThreshold must be between 1 and 100.");
+            }
+
+            if (outlier.EjectionDurationSeconds is < 1 or > 3600)
+            {
+                failures.Add(
+                    "TrafficEngineering.OutlierDetection.EjectionDurationSeconds must be between 1 and 3600.");
+            }
+        }
+
+        var hedging = traffic.Hedging;
+        if (hedging.Enabled)
+        {
+            failures.Add(
+                "TrafficEngineering.Hedging.Enabled is reserved and not yet implemented; leave Enabled=false.");
+        }
+    }
+
+    private static void ValidateCanaryOptions(CanaryOptions canary, List<string> failures)
+    {
+        if (!canary.Enabled)
+        {
+            return;
+        }
+
+        if (canary.Splits.Count == 0)
+        {
+            failures.Add("Canary.Enabled requires at least one split.");
+        }
+    }
+
+    private static void ValidateFeatures(FeaturesOptions features, List<string> failures)
+    {
+        if (features.Enabled.Any(static id => string.IsNullOrWhiteSpace(id)))
+        {
+            failures.Add("Features.Enabled cannot contain empty values.");
+        }
+
+        var plugins = features.Plugins;
+        if (!plugins.Enabled)
+        {
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(plugins.AllowedRoot))
+        {
+            failures.Add("Features.Plugins.AllowedRoot is required when plugins are enabled.");
+        }
+
+        if (plugins.Entries.Count == 0)
+        {
+            failures.Add("Features.Plugins.Enabled requires at least one plugin entry.");
+            return;
+        }
+
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var entry in plugins.Entries)
+        {
+            if (string.IsNullOrWhiteSpace(entry.Id) || !seen.Add(entry.Id))
+            {
+                failures.Add("Features.Plugins.Entries require unique non-empty Id values.");
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(entry.Path))
+            {
+                failures.Add($"Features.Plugins.Entries['{entry.Id}'].Path is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(entry.Sha256Hex) || !Sha256HexPattern.IsMatch(entry.Sha256Hex))
+            {
+                failures.Add(
+                    $"Features.Plugins.Entries['{entry.Id}'].Sha256Hex must be a 64-character lowercase hex digest.");
+            }
+        }
     }
 
     private static void ValidateAdmin(AdminOptions admin, List<string> failures)

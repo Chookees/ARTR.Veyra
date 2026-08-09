@@ -1,0 +1,22 @@
+### ARTR Veyra demo story (no containers)
+
+# Start: .\build\RunDemo.ps1
+
+### Proxy
+GET http://127.0.0.1:5080/a/hello
+GET http://127.0.0.1:5080/b/hello
+
+### Canary (weights from ARTR:Veyra:Canary)
+GET http://127.0.0.1:5080/canary/hello
+
+### Per-route rate limit (Metadata.RateLimitPolicy=strict on /b)
+GET http://127.0.0.1:5080/b/hello
+
+### Admin / golden signals
+GET http://127.0.0.1:5080/_veyra/info
+GET http://127.0.0.1:5080/_veyra/diagnostics
+GET http://127.0.0.1:5080/_veyra/health/live
+GET http://127.0.0.1:5080/_veyra/health/ready
+
+### Optional metrics (enable Observability:Prometheus:Enabled)
+GET http://127.0.0.1:5080/metrics

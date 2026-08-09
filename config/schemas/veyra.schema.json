@@ -15,7 +15,8 @@
               "properties": {
                 "Enabled": { "type": "boolean" },
                 "PathBase": { "type": "string", "default": "/_veyra" },
-                "RequireAuthentication": { "type": "boolean" }
+                "RequireAuthentication": { "type": "boolean" },
+                "ListenUrls": { "type": ["string", "null"] }
               }
             },
             "Authentication": {
@@ -35,7 +36,112 @@
             "Secrets": { "type": "object" },
             "Health": { "type": "object" },
             "Transforms": { "type": "object" },
-            "Shutdown": { "type": "object" }
+            "Shutdown": { "type": "object" },
+            "ConfigurationReload": {
+              "type": "object",
+              "properties": {
+                "Enabled": { "type": "boolean" },
+                "RetainLastKnownGood": { "type": "boolean" }
+              }
+            },
+            "RoutingSecurity": {
+              "type": "object",
+              "properties": {
+                "DenyAnonymousRoutesByDefault": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "When authentication is enabled, every YARP route must set AllowAnonymous or AuthorizationPolicy."
+                }
+              }
+            },
+            "TrafficEngineering": {
+              "type": "object",
+              "properties": {
+                "ValidateClusterWeights": { "type": "boolean", "default": true },
+                "SafeRetries": {
+                  "type": "object",
+                  "properties": {
+                    "Enabled": { "type": "boolean", "default": false },
+                    "MaxAttempts": { "type": "integer", "minimum": 1, "maximum": 5 },
+                    "TotalTimeoutSeconds": { "type": "integer", "minimum": 1, "maximum": 120 },
+                    "IdempotentMethods": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "description": "Only safe idempotent methods; POST/PUT/PATCH/DELETE rejected."
+                    }
+                  }
+                },
+                "OutlierDetection": {
+                  "type": "object",
+                  "properties": {
+                    "Enabled": { "type": "boolean" },
+                    "ConsecutiveFailureEjectionThreshold": { "type": "integer", "minimum": 1 },
+                    "EjectionDurationSeconds": { "type": "integer", "minimum": 1, "maximum": 3600 }
+                  }
+                },
+                "Hedging": {
+                  "type": "object",
+                  "properties": {
+                    "Enabled": { "type": "boolean", "default": false, "description": "Reserved; must remain false." },
+                    "DelayMilliseconds": { "type": "integer" },
+                    "MaxHedges": { "type": "integer" }
+                  }
+                }
+              }
+            },
+            "Canary": {
+              "type": "object",
+              "properties": {
+                "Enabled": { "type": "boolean" },
+                "Splits": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["Name", "ClusterId", "Weights"],
+                    "properties": {
+                      "Name": { "type": "string" },
+                      "ClusterId": { "type": "string" },
+                      "Weights": {
+                        "type": "object",
+                        "additionalProperties": { "type": "integer", "minimum": 0, "maximum": 100 },
+                        "description": "Destination id → weight; must sum to 100."
+                      },
+                      "MatchHeaderName": { "type": ["string", "null"] },
+                      "MatchHeaderValue": { "type": ["string", "null"] }
+                    }
+                  }
+                }
+              }
+            },
+            "Features": {
+              "type": "object",
+              "properties": {
+                "Enabled": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "When non-empty, only listed IVeyraRequestGate FeatureIds run."
+                },
+                "Plugins": {
+                  "type": "object",
+                  "properties": {
+                    "Enabled": { "type": "boolean", "default": false },
+                    "AllowedRoot": { "type": "string" },
+                    "Entries": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": ["Id", "Path", "Sha256Hex"],
+                        "properties": {
+                          "Id": { "type": "string" },
+                          "Path": { "type": "string" },
+                          "Sha256Hex": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }

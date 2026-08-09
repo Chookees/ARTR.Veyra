@@ -1,18 +1,21 @@
 using System.Threading.RateLimiting;
-using ARTR.Veyra.Authentication.Authorization;
 using ARTR.Veyra.Authentication.DependencyInjection;
 using ARTR.Veyra.Core.Configuration;
 using ARTR.Veyra.Core.DependencyInjection;
 using ARTR.Veyra.Core.Hosting;
+using ARTR.Veyra.Core.Plugins;
 using ARTR.Veyra.Host.Admin;
 using ARTR.Veyra.Host.Health;
 using ARTR.Veyra.Host.Middleware;
 using ARTR.Veyra.Host.RateLimiting;
+using ARTR.Veyra.Host.Traffic;
 using ARTR.Veyra.Infrastructure.DependencyInjection;
 using ARTR.Veyra.Infrastructure.Transforms;
 using ARTR.Veyra.Observability.DependencyInjection;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.Options;
 using Scalar.AspNetCore;
+using Yarp.ReverseProxy.Forwarder;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,8 +39,11 @@ builder.Services.AddVeyraRateLimiting(builder.Configuration);
 builder.Services.AddVeyraHealthChecks();
 builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi();
+builder.Services.AddSingleton<IForwarderHttpClientFactory, SafeRetryForwarderHttpClientFactory>();
+builder.Services.AddHostedService<DestinationHealthMetricsPublisher>();
 builder.Services.AddReverseProxy()
-    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
+    .AddConfigFilter<VeyraTrafficProxyConfigFilter>();
 
 builder.Services.Configure<HostOptions>(options =>
 {
@@ -60,7 +66,6 @@ builder.WebHost.ConfigureKestrel((context, options) =>
     options.Limits.RequestHeadersTimeout = TimeSpan.FromSeconds(limits.RequestHeadersTimeoutSeconds);
     options.Limits.KeepAliveTimeout = TimeSpan.FromSeconds(limits.KeepAliveTimeoutSeconds);
 
-    // When any Listen() is used, UseUrls is ignored — bind data-plane and optional admin listeners explicitly.
     if (!string.IsNullOrWhiteSpace(veyra.Admin.ListenUrls))
     {
         var dataUrls = context.Configuration["Urls"] ?? "http://127.0.0.1:5080";
@@ -80,7 +85,7 @@ builder.WebHost.ConfigureKestrel((context, options) =>
 
 var app = builder.Build();
 
-var veyraOptions = app.Services.GetRequiredService<Microsoft.Extensions.Options.IOptions<VeyraOptions>>().Value;
+var veyraOptions = app.Services.GetRequiredService<IOptions<VeyraOptions>>().Value;
 
 var transformValidation = app.Services.GetRequiredService<YarpTransformAllowlistValidator>()
     .ValidateConfiguredTransforms();
@@ -90,9 +95,37 @@ if (!transformValidation.IsValid)
         "ReverseProxy transforms failed allowlist validation: " + string.Join("; ", transformValidation.Errors));
 }
 
+var routeSecurityFailures = ReverseProxyRouteSecurityValidator.Validate(app.Configuration, veyraOptions);
+if (routeSecurityFailures.Count > 0)
+{
+    throw new InvalidOperationException(
+        "ReverseProxy route security validation failed: " + string.Join("; ", routeSecurityFailures));
+}
+
+if (veyraOptions.Features.Plugins.Enabled)
+{
+    var loader = app.Services.GetRequiredService<IPluginLoader>();
+    var results = loader.Load(
+        veyraOptions.Features.Plugins.Entries.Select(e => new PluginDescriptor
+        {
+            Id = e.Id,
+            Path = e.Path,
+            Sha256Hex = e.Sha256Hex,
+        }),
+        veyraOptions.Features.Plugins.AllowedRoot);
+    var failed = results.Where(static r => !r.Success).ToArray();
+    if (failed.Length > 0)
+    {
+        throw new InvalidOperationException(
+            "Plugin validation failed: " + string.Join("; ", failed.Select(f => $"{f.PluginId}:{f.Error}")));
+    }
+}
+
 app.UseVeyraExceptionHandler();
 app.UseVeyraCorrelation();
 app.UseVeyraAdminListenerIsolation(veyraOptions);
+app.UseVeyraAdminAudit();
+app.UseVeyraGatewayTelemetry();
 
 if (veyraOptions.ForwardedHeaders.Enabled)
 {
@@ -158,7 +191,15 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.MapReverseProxy();
+app.MapReverseProxy(proxyPipeline =>
+{
+    proxyPipeline.UseSessionAffinity();
+    proxyPipeline.UseLoadBalancing();
+    proxyPipeline.UsePassiveHealthChecks();
+    proxyPipeline.UseVeyraReverseProxyAuthorization();
+    proxyPipeline.UseVeyraRouteRateLimiting();
+    proxyPipeline.UseVeyraRequestGates();
+});
 
 await app.RunAsync().ConfigureAwait(false);
 

@@ -35,6 +35,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "benchmarks", "benchmarks", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ARTR.Veyra.Benchmarks", "benchmarks\ARTR.Veyra.Benchmarks\ARTR.Veyra.Benchmarks.csproj", "{0B78AEB4-89EC-48CB-A436-D291378C35F0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ARTR.Veyra.Sample.DenyListGate", "samples\ARTR.Veyra.Sample.DenyListGate\ARTR.Veyra.Sample.DenyListGate.csproj", "{E7AE3695-1CD8-45C2-8843-0B95DE49EDAB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -189,6 +191,18 @@ Global
 		{0B78AEB4-89EC-48CB-A436-D291378C35F0}.Release|x64.Build.0 = Release|Any CPU
 		{0B78AEB4-89EC-48CB-A436-D291378C35F0}.Release|x86.ActiveCfg = Release|Any CPU
 		{0B78AEB4-89EC-48CB-A436-D291378C35F0}.Release|x86.Build.0 = Release|Any CPU
+		{E7AE3695-1CD8-45C2-8843-0B95DE49EDAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7AE3695-1CD8-45C2-8843-0B95DE49EDAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7AE3695-1CD8-45C2-8843-0B95DE49EDAB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E7AE3695-1CD8-45C2-8843-0B95DE49EDAB}.Debug|x64.Build.0 = Debug|Any CPU
+		{E7AE3695-1CD8-45C2-8843-0B95DE49EDAB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E7AE3695-1CD8-45C2-8843-0B95DE49EDAB}.Debug|x86.Build.0 = Debug|Any CPU
+		{E7AE3695-1CD8-45C2-8843-0B95DE49EDAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7AE3695-1CD8-45C2-8843-0B95DE49EDAB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7AE3695-1CD8-45C2-8843-0B95DE49EDAB}.Release|x64.ActiveCfg = Release|Any CPU
+		{E7AE3695-1CD8-45C2-8843-0B95DE49EDAB}.Release|x64.Build.0 = Release|Any CPU
+		{E7AE3695-1CD8-45C2-8843-0B95DE49EDAB}.Release|x86.ActiveCfg = Release|Any CPU
+		{E7AE3695-1CD8-45C2-8843-0B95DE49EDAB}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -206,5 +220,6 @@ Global
 		{AA177C51-042C-439B-908F-ABDD5BE5E451} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{BC5DACAA-FB5C-4DF5-BAB4-99E2FB6F1518} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{0B78AEB4-89EC-48CB-A436-D291378C35F0} = {66320409-64EC-F7C5-3DEF-65E7510DAAD1}
+		{E7AE3695-1CD8-45C2-8843-0B95DE49EDAB} = {5D20AA90-6969-D8BD-9DCD-8634F4692FDA}
 	EndGlobalSection
 EndGlobal
