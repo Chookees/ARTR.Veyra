@@ -56,5 +56,5 @@ releases/
 .nuget/
 packages/
 
-## Local agent runtime artifacts
-/inDev/
+# Cursor agents and skills
+**/.cursor
