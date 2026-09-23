@@ -8,11 +8,11 @@ namespace ARTR.Veyra.ArchitectureTests;
 public sealed class PackageLockAlignmentTests
 {
     [Fact]
-    public void MicrosoftOpenApi_RemainsPinnedAt_2_11_0()
+    public void MicrosoftOpenApi_RemainsPinnedAt_2_12_2()
     {
         var cpm = LoadCpmVersions();
         Assert.True(cpm.TryGetValue("Microsoft.OpenApi", out var version), "Microsoft.OpenApi missing from Directory.Packages.props.");
-        Assert.Equal("2.11.0", version);
+        Assert.Equal("2.12.2", version);
 
         foreach (var lockPath in EnumerateLockFiles())
         {
@@ -28,8 +28,8 @@ public sealed class PackageLockAlignmentTests
                     continue;
                 }
 
-                Assert.Equal("2.11.0", entry.Resolved);
-                Assert.Equal("2.11.0", ParseRequestedLowerBound(entry.Requested));
+                Assert.Equal("2.12.2", entry.Resolved);
+                Assert.Equal("2.12.2", ParseRequestedLowerBound(entry.Requested));
             }
         }
     }
