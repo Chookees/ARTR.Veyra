@@ -1,0 +1,34 @@
+name: LockSight Doctor
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'Directory.Packages.props'
+      - '**/*.*proj'
+      - '**/packages.lock.json'
+      - 'nuget.config'
+      - 'Directory.Build.props'
+      - 'Directory.Build.targets'
+  pull_request:
+    paths:
+      - 'Directory.Packages.props'
+      - '**/*.*proj'
+      - '**/packages.lock.json'
+      - 'nuget.config'
+      - 'Directory.Build.props'
+      - 'Directory.Build.targets'
+  workflow_dispatch:
+
+jobs:
+  locksight:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - uses: Chookees/ARTR.LockSight@v1.1.0
+        with:
+          path: .
+          evaluate: "false"
