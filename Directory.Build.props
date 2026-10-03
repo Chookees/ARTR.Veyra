@@ -35,4 +35,5 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
+  <!-- LockSight Doctor watches this file (path filter). -->
 </Project>
