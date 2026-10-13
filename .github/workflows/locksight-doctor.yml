@@ -22,13 +22,13 @@ on:
 
 jobs:
   locksight:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v6
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: '10.0.x'
-      - uses: Chookees/ARTR.LockSight@v1.1.0
+      - uses: Chookees/ARTR.LockSight@3f5e17ab7407b458c9d8ea8f06402ddc24032377 # v1.1.0
         with:
           path: .
           evaluate: "false"
