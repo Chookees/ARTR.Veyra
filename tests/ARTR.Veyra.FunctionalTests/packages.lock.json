@@ -279,7 +279,7 @@
         "type": "Project",
         "dependencies": {
           "ARTR.Veyra.Core": "[1.0.0, )",
-          "Microsoft.AspNetCore.Authentication.JwtBearer": "[10.0.12, )"
+          "Microsoft.AspNetCore.Authentication.JwtBearer": "[10.0.13, )"
         }
       },
       "artr.veyra.core": {
@@ -292,7 +292,7 @@
           "ARTR.Veyra.Core": "[1.0.0, )",
           "ARTR.Veyra.Infrastructure": "[1.0.0, )",
           "ARTR.Veyra.Observability": "[1.0.0, )",
-          "Microsoft.AspNetCore.OpenApi": "[10.0.12, )",
+          "Microsoft.AspNetCore.OpenApi": "[10.0.13, )",
           "Microsoft.Extensions.Hosting.Systemd": "[10.0.12, )",
           "Microsoft.Extensions.Hosting.WindowsServices": "[10.0.12, )",
           "Microsoft.OpenApi": "[2.12.2, )",
@@ -330,20 +330,20 @@
       },
       "Microsoft.AspNetCore.Authentication.JwtBearer": {
         "type": "CentralTransitive",
-        "requested": "[10.0.12, )",
-        "resolved": "10.0.12",
-        "contentHash": "DeE+Bq2OqB3FikFkZk+7gFBeLOQhkSolejLrbi+a9zpfvXtW1Ff6Nd6DIvHXIm+pc4aM4+52vDy3jnuau0qoUQ==",
+        "requested": "[10.0.13, )",
+        "resolved": "10.0.13",
+        "contentHash": "cEPhQWsaUKymSdQ+NB2rF4GnWtjofAcRrzr2aGPzbjSFyeDtIlBzrbX1Qeh/OAHjvdwBe05SbsukoSbz27AD6g==",
         "dependencies": {
           "Microsoft.IdentityModel.Protocols.OpenIdConnect": "8.19.2"
         }
       },
       "Microsoft.AspNetCore.OpenApi": {
         "type": "CentralTransitive",
-        "requested": "[10.0.12, )",
-        "resolved": "10.0.12",
-        "contentHash": "7RnQ/UKn+kK3JDLmTpW+vVqNErWthGPAVAy1aIiBzv4ucQ6g9NFvOJUuT0PHcpvcJxGVxctMxj6t+NESWMrgHQ==",
+        "requested": "[10.0.13, )",
+        "resolved": "10.0.13",
+        "contentHash": "XVuqUBGjVUVyb4DXR5BrSkrW0Br7sYKq39f723ILhQLlFHCyhAgWe1PkJBc42R/5mKBIgHiKVSY+PN5/4XtcQw==",
         "dependencies": {
-          "Microsoft.OpenApi": "[2.12.0, 3.0.0)"
+          "Microsoft.OpenApi": "[2.12.2, 3.0.0)"
         }
       },
       "Microsoft.Extensions.Hosting.Systemd": {
