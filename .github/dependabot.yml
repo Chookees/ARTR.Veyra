@@ -8,7 +8,18 @@ updates:
       # Microsoft.AspNetCore.OpenApi 10.x source generators require Microsoft.OpenApi 2.x.
       - dependency-name: Microsoft.OpenApi
         versions: [">=3.0.0"]
+    groups:
+      microsoft:
+        patterns:
+          - "Microsoft.*"
+        update-types:
+          - "minor"
+          - "patch"
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+    groups:
+      codeql-action:
+        patterns:
+          - "github/codeql-action*"
