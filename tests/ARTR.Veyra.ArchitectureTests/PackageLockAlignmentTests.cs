@@ -62,12 +62,20 @@ public sealed class PackageLockAlignmentTests
         foreach (var yml in Directory.EnumerateFiles(workflowsDir, "*.yml"))
         {
             var text = File.ReadAllText(yml);
+            var fileName = Path.GetFileName(yml);
             foreach (Match match in Regex.Matches(text, @"dotnet\s+restore\s+ARTR\.Veyra\.sln(?<flags>[^\r\n]*)"))
             {
                 var flags = match.Groups["flags"].Value;
+                // Dependabot lockfile regen intentionally force-evaluates locks.
+                if (fileName.Equals("dependabot-nuget-lockfiles.yml", StringComparison.Ordinal)
+                    && flags.Contains("--force-evaluate", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
                 if (!flags.Contains("--locked-mode", StringComparison.Ordinal))
                 {
-                    mismatches.Add($"{Path.GetFileName(yml)}: {match.Value.Trim()}");
+                    mismatches.Add($"{fileName}: {match.Value.Trim()}");
                 }
             }
         }
