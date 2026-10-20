@@ -13,24 +13,24 @@
       },
       "Microsoft.Extensions.Hosting.Systemd": {
         "type": "Direct",
-        "requested": "[10.0.12, )",
-        "resolved": "10.0.12",
-        "contentHash": "WC1u8RbTqJTY/JknZFHX0+TDptgtpoBRc8Kro0xPSwunMql3e1zBxnK+OJbx30ozSCfMpHaYAfaeiVQgM5sizw=="
+        "requested": "[10.0.13, )",
+        "resolved": "10.0.13",
+        "contentHash": "FTbDomFMcdxTOG621obgiyNIzSeqPzmCwdsHL1YkVNxNZnkzQlkA4SRWTJKaZj8VOX22iV3aVYuzKU7Ift1ZKw=="
       },
       "Microsoft.Extensions.Hosting.WindowsServices": {
         "type": "Direct",
-        "requested": "[10.0.12, )",
-        "resolved": "10.0.12",
-        "contentHash": "Za5xCWb7jkHd7+hYu8C22uIf0DGhNASIiXo1xSU450nj01RFCerP06h1Bh3kxUm+5DijfgP0gtpY6v+oI/UI4g==",
+        "requested": "[10.0.13, )",
+        "resolved": "10.0.13",
+        "contentHash": "sk3VNcYEmgwYGPF4ze/112jpaeDKSsKGhmEZ8IlhOR8F6JT+1DYaZUb14jobVXiKhuXWIKcYXV7mkSPeA4dc3g==",
         "dependencies": {
-          "System.ServiceProcess.ServiceController": "10.0.12"
+          "System.ServiceProcess.ServiceController": "10.0.13"
         }
       },
       "Microsoft.OpenApi": {
         "type": "Direct",
-        "requested": "[2.12.2, )",
-        "resolved": "2.12.2",
-        "contentHash": "ZkT7qiJe0Kj0+DTZOZo+xrDy1kNmdsWFQVPIQLNx9ZJ0T9cB2LG7r+Bi60so8/+yg1nkS7QCPadrzsTG4VPKrA=="
+        "requested": "[2.13.0, )",
+        "resolved": "2.13.0",
+        "contentHash": "wavlgBYnn7uU/ZGhFHNl0UlDOlwz+6KRduKkqdCCbfxxANaQ1rmBpETVGdwXanAM6twQOxsvI3CBEGF4OScbeQ=="
       },
       "Scalar.AspNetCore": {
         "type": "Direct",
@@ -136,8 +136,8 @@
       },
       "System.ServiceProcess.ServiceController": {
         "type": "Transitive",
-        "resolved": "10.0.12",
-        "contentHash": "sFV+RM/yPtshiCAEIuTm8Dt4F7VuKRbL50PnGC9nXHolk/jw+z3T8zx7axKTBC8mqtQU2ZmjsoPC9b1iwOilNQ=="
+        "resolved": "10.0.13",
+        "contentHash": "0Zh/U/1+hy1MCxx1BTikJi4L5o1Ys6VhB8PKlTNOB4/n2d6ua2+TuoD6T7xN9RV0uiOGod575pQrUSTXg+aYGQ=="
       },
       "artr.veyra.authentication": {
         "type": "Project",
@@ -224,29 +224,29 @@
     "net10.0/linux-arm64": {
       "System.ServiceProcess.ServiceController": {
         "type": "Transitive",
-        "resolved": "10.0.12",
-        "contentHash": "sFV+RM/yPtshiCAEIuTm8Dt4F7VuKRbL50PnGC9nXHolk/jw+z3T8zx7axKTBC8mqtQU2ZmjsoPC9b1iwOilNQ=="
+        "resolved": "10.0.13",
+        "contentHash": "0Zh/U/1+hy1MCxx1BTikJi4L5o1Ys6VhB8PKlTNOB4/n2d6ua2+TuoD6T7xN9RV0uiOGod575pQrUSTXg+aYGQ=="
       }
     },
     "net10.0/linux-x64": {
       "System.ServiceProcess.ServiceController": {
         "type": "Transitive",
-        "resolved": "10.0.12",
-        "contentHash": "sFV+RM/yPtshiCAEIuTm8Dt4F7VuKRbL50PnGC9nXHolk/jw+z3T8zx7axKTBC8mqtQU2ZmjsoPC9b1iwOilNQ=="
+        "resolved": "10.0.13",
+        "contentHash": "0Zh/U/1+hy1MCxx1BTikJi4L5o1Ys6VhB8PKlTNOB4/n2d6ua2+TuoD6T7xN9RV0uiOGod575pQrUSTXg+aYGQ=="
       }
     },
     "net10.0/win-arm64": {
       "System.ServiceProcess.ServiceController": {
         "type": "Transitive",
-        "resolved": "10.0.12",
-        "contentHash": "sFV+RM/yPtshiCAEIuTm8Dt4F7VuKRbL50PnGC9nXHolk/jw+z3T8zx7axKTBC8mqtQU2ZmjsoPC9b1iwOilNQ=="
+        "resolved": "10.0.13",
+        "contentHash": "0Zh/U/1+hy1MCxx1BTikJi4L5o1Ys6VhB8PKlTNOB4/n2d6ua2+TuoD6T7xN9RV0uiOGod575pQrUSTXg+aYGQ=="
       }
     },
     "net10.0/win-x64": {
       "System.ServiceProcess.ServiceController": {
         "type": "Transitive",
-        "resolved": "10.0.12",
-        "contentHash": "sFV+RM/yPtshiCAEIuTm8Dt4F7VuKRbL50PnGC9nXHolk/jw+z3T8zx7axKTBC8mqtQU2ZmjsoPC9b1iwOilNQ=="
+        "resolved": "10.0.13",
+        "contentHash": "0Zh/U/1+hy1MCxx1BTikJi4L5o1Ys6VhB8PKlTNOB4/n2d6ua2+TuoD6T7xN9RV0uiOGod575pQrUSTXg+aYGQ=="
       }
     }
   }
