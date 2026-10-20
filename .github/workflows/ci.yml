@@ -30,15 +30,15 @@ jobs:
         run: |
           rm -rf artifacts/TestResults
           mkdir -p artifacts/TestResults
+          # xunit.v3 4.x uses MTP v2; collect coverage via coverlet.MTP (+ tests/coverlet.testconfig.json).
           dotnet test ARTR.Veyra.sln --configuration Release --no-build \
-            --collect:"XPlat Code Coverage" \
-            --results-directory artifacts/TestResults \
-            --settings coverlet.runsettings
+            --coverlet \
+            --results-directory artifacts/TestResults
       - name: Coverage report
         shell: bash
         run: |
           dotnet tool run reportgenerator \
-            "-reports:artifacts/TestResults/**/coverage.cobertura.xml" \
+            "-reports:artifacts/TestResults/**/coverage.cobertura*.xml" \
             "-targetdir:artifacts/coverage-report" \
             "-reporttypes:TextSummary" \
             "-assemblyfilters:+ARTR.Veyra.Core;+ARTR.Veyra.Infrastructure;+ARTR.Veyra.Authentication;+ARTR.Veyra.Observability;+ARTR.Veyra.Host"
