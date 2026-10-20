@@ -15,6 +15,9 @@ updates:
         update-types:
           - "minor"
           - "patch"
+      opentelemetry:
+        patterns:
+          - "OpenTelemetry.*"
   - package-ecosystem: github-actions
     directory: /
     schedule:
