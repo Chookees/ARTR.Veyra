@@ -2,7 +2,15 @@
   <PropertyGroup Condition="'$(IsTestProject)' == 'true'">
     <IsPackable>false</IsPackable>
     <NoWarn>$(NoWarn);CA1707;CA1859;xUnit1051;CA2007</NoWarn>
+    <!-- xunit.v3 4.x defaults to MTP v2; enable the MTP command-line surface for coverage extensions. -->
+    <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
   </PropertyGroup>
+
+  <ItemGroup Condition="'$(IsTestProject)' == 'true'">
+    <None Include="$(MSBuildThisFileDirectory)tests/coverlet.testconfig.json" Link="testconfig.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
   <PropertyGroup Condition="'$(IsProductionAssembly)' == 'true'">
     <IsPackable>false</IsPackable>

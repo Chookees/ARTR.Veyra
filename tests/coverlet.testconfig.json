@@ -1,0 +1,17 @@
+{
+  "platformOptions": {
+    "Coverlet": {
+      "include": "[ARTR.Veyra.Core]*,[ARTR.Veyra.Infrastructure]*,[ARTR.Veyra.Authentication]*,[ARTR.Veyra.Observability]*,[ARTR.Veyra.Host]*",
+      "exclude": "[*]*.Program,[*]*.Migrations.*",
+      "excludeByAttribute": "Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute,ExcludeFromCodeCoverage,ExcludeFromCodeCoverageAttribute",
+      "excludeByFile": "**/Program.cs",
+      "includeDirectory": "src/",
+      "format": "cobertura",
+      "useSourceLink": false,
+      "singleHit": false,
+      "includeTestAssembly": false,
+      "skipAutoProps": true,
+      "excludeAssembliesWithoutSources": "MissingAll"
+    }
+  }
+}
