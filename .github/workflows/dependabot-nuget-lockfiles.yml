@@ -1,0 +1,69 @@
+name: Dependabot NuGet lockfiles
+
+# Regenerates packages.lock.json on Dependabot NuGet PRs after CPM bumps.
+# Uses pull_request (not pull_request_target). Commits are pushed with a
+# dedicated token so CI re-runs; GITHUB_TOKEN pushes would not trigger workflows.
+
+on:
+  pull_request:
+    paths:
+      - 'Directory.Packages.props'
+      - '**/*.*proj'
+      - '**/packages.lock.json'
+      - 'Directory.Build.props'
+      - 'Directory.Build.targets'
+      - 'nuget.config'
+      - 'global.json'
+
+# Minimal defaults; only the commit job elevates contents: write.
+permissions:
+  contents: read
+
+concurrency:
+  group: dependabot-nuget-lockfiles-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  regenerate-lockfiles:
+    name: Regenerate NuGet lockfiles
+    if: >
+      github.actor == 'dependabot[bot]' &&
+      github.event.pull_request.user.login == 'dependabot[bot]'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.head_ref }}
+          # PAT/App token required so the lockfile push re-triggers CI.
+          # Configure repository secret DEPENDABOT_LOCKFILE_TOKEN (see workflow PR).
+          token: ${{ secrets.DEPENDABOT_LOCKFILE_TOKEN }}
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Force-evaluate lockfiles
+        run: dotnet restore ARTR.Veyra.sln --force-evaluate
+
+      - name: Commit and push lockfile updates
+        env:
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- '**/packages.lock.json'; then
+            echo "No packages.lock.json changes."
+            exit 0
+          fi
+
+          git config user.name "Chookees"
+          git config user.email "Chookees@users.noreply.github.com"
+
+          git add -- '**/packages.lock.json'
+          # Explicit message with no trailers (no Co-authored-by).
+          git commit --no-verify -m "Regenerate NuGet packages.lock.json for Dependabot"
+
+          git push origin "HEAD:${BRANCH}"
